@@ -25,7 +25,7 @@ class Suit(card.OrderedValueEnum):
     DIAMOND = ('♦', 4)
 
 class Rank(card.OrderedValueEnum):
-    JOKER = ('★',  -1)
+    JOKER = ('Joker',  -1)
     ACE   = ('A',  1)
     KING  = ('K',  2)
     QUEEN = ('Q',  3)
@@ -46,7 +46,7 @@ def build_default_cardset(n_jokers=2):
     ranks = list(Rank)[1:]
 
     cardset = [card.Card(s, r) for s, r in itertools.product(suits, ranks)]
-    cardset += [card.Card(Suit.JOKER, Rank.JOKER, 'Joker')] * n_jokers
+    cardset += [card.Card(Suit.JOKER, Rank.JOKER)] * n_jokers
     return cardset
 
 class Hand:
