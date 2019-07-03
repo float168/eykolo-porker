@@ -50,20 +50,6 @@ def build_default_cardset(n_jokers=2):
     return cardset
 
 class Hand:
-    NAME_SCORE_TABLE = [
-            ('Five of a Kind',  1500),
-            ('Royal Flush',     1000),
-            ('Straight Flush',  200),
-            ('Four of a Kind',  100),
-            ('Full House',      50),
-            ('Flush',           40),
-            ('Straight',        30),
-            ('Three of a Kind', 10),
-            ('Two Pair',        5),
-            ('One Pair',        1),
-            ('High Card',       1),
-    ]
-
     def __init__(self, cards):
         assert(len(cards) == 5)
         self.__cards = cards
