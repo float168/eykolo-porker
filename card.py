@@ -4,7 +4,7 @@ import enum
 import operator
 
 
-# 値を(順序,
+# 値を(文字列,順序)の順で定義するためのEnum
 class OrderedValueEnum(enum.Enum):
     def __ge__(self, other):
         if self.__class__ is other.__class__:
