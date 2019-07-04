@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import itertools
+import functools
 
 import card
 
@@ -9,12 +10,56 @@ def main():
     cardset = build_default_cardset()
     deck = card.Deck(cardset)
 
-    cards = deck.draw(5)
+    user_cards = deck.draw(5)
+    user_hand = Hand(user_cards)
 
-    print("Your hand: ",
-          ", ".join(map(lambda x: str(x), cards)),
-          " ({})".format(Hand(cards))
-          )
+    bot_cards = deck.draw(5)
+    bot_hand = Hand(bot_cards)
+
+    def colorize_card(card):
+        s = str(card)
+        if card.suit in [Suit.JOKER]:
+            s = Color.blue(s)
+        elif card.suit in [Suit.HEART, Suit.DIAMOND]:
+            s = Color.red(s)
+        return s
+
+    def format_colored_hand(cards, hand, prefix):
+        return prefix + " " + ", ".join(map(colorize_card, cards)) + \
+               " ({})".format(hand)
+
+    print(format_colored_hand(user_cards, user_hand, "Your hand:"))
+    print(format_colored_hand(bot_cards, bot_hand, "Dealer hand:"))
+
+    if user_hand == bot_hand:
+        print("Draw")
+    elif user_hand > bot_hand:
+        print("You win!")
+    else:
+        print("You lose")
+
+class Color:
+    BLACK     = '\033[30m'
+    RED       = '\033[31m'
+    GREEN     = '\033[32m'
+    YELLOW    = '\033[33m'
+    BLUE      = '\033[34m'
+    PURPLE    = '\033[35m'
+    CYAN      = '\033[36m'
+    WHITE     = '\033[37m'
+    END       = '\033[0m'
+    BOLD      = '\038[1m'
+    UNDERLINE = '\033[4m'
+    INVISIBLE = '\033[08m'
+    REVERSE   = '\033[07m'
+
+    @classmethod
+    def blue(cls, s):
+        return cls.BLUE + s + cls.END
+
+    @classmethod
+    def red(cls, s):
+        return cls.RED + s + cls.END
 
 # スート
 # ジョーカーも含める
@@ -50,11 +95,16 @@ def build_default_cardset(n_jokers=2):
     cardset += [card.Card(Suit.JOKER, Rank.JOKER)] * n_jokers
     return cardset
 
+@functools.total_ordering
 class Hand:
     def __init__(self, cards):
         assert(len(cards) == 5)
         self.__cards = cards
-        self.__judge_rank()
+        self.__judge()
+
+    @property
+    def score(self):
+        return self.__score
 
     def __str__(self):
         return self.__name
@@ -62,7 +112,17 @@ class Hand:
     def __repr__(self):
         return "<Hand: name = {}>".format(self)
 
-    def __judge_rank(self):
+    def __lt__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.score < other.score
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.score == other.score
+
+    def __judge(self):
         self.__jokers = self.__cards.indexes(Suit.JOKER)
 
         self.__normal_count = len(self.__cards) - len(self.__jokers)
@@ -86,26 +146,37 @@ class Hand:
 
         if self.__is_five_card():
             self.__name = 'Five of a Kind'
+            self.__score = 10000
         elif self.__is_royal_flush():
             self.__name = 'Royal Flush'
+            self.__score = 9000
         elif self.__is_straight_flush():
             self.__name = 'Straight Flush'
+            self.__score = 8000
         elif self.__is_four_card():
             self.__name = 'Four of a Kind'
+            self.__score = 7000
         elif self.__is_full_house():
             self.__name = 'Full House'
+            self.__score = 6000
         elif self.__is_flush():
             self.__name = 'Flush'
+            self.__score = 5000
         elif self.__is_straight():
             self.__name = 'Straight'
+            self.__score = 4000
         elif self.__is_three_card():
             self.__name = 'Three of a Kind'
+            self.__score = 3000
         elif self.__is_two_pair():
             self.__name = 'Two Pair'
+            self.__score = 2000
         elif self.__is_one_pair():
             self.__name = 'One Pair'
+            self.__score = 1000
         else:
             self.__name = 'High Card'
+            self.__score = 0
 
     def __is_five_card(self):
         if self.__normal_count in self.__rank_hist.values():
