@@ -11,9 +11,10 @@ def main():
 
     cards = deck.draw(5)
 
-    print("This is your hand:", ", ".join(map(lambda x: str(x), cards)))
-    print(Hand(cards))
-
+    print("Your hand: ",
+          ", ".join(map(lambda x: str(x), cards)),
+          " ({})".format(Hand(cards))
+          )
 
 # スート
 # ジョーカーも含める
