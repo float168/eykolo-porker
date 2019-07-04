@@ -46,9 +46,6 @@ class Card:
     def rank(self):
         return self.__rank
 
-    def __repr__(self):
-        return "<Card {}>".format(str(self))
-
     def __str__(self):
         if self.__expr is not None:
             return self.__expr
@@ -167,6 +164,3 @@ class Deck:
     # カードセットをシャッフルしたものを生成
     def __random_cardset(self):
         return random.sample(self.__cardset, self.__decksize)
-
-    def __repr__(self):
-        return "<Deck: remain = {}>".format(len(self.__deck))
